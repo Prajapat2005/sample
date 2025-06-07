@@ -2,7 +2,7 @@ import { Webhook } from "svix";
 import connectDB from "@/config/db";
 import User from "@/models/User";
 import { headers } from "next/headers";
-import { NextRequest } from "next/server";
+import { NextResponse } from "next/server"; // Changed import
 
 export async function POST(req) {
 
@@ -32,21 +32,19 @@ export async function POST(req) {
         case "user.created":
             await User.create(userData);
             break;
+
         case "user.updated":
             await User.findByIdAndUpdate(data.id, userData);
             break;
+
         case "user.deleted":
-            console.log("User deleted:", data.id);
+            await User.findByIdAndDelete(data.id);
             break;
         default:
-            console.log("Unhandled event type:", type);
+            break;
     }
 
-    else if (type === "user.deleted") {
-        await User.findByIdAndDelete(data.id);
-    }
-
-    return NextRequest.json({
+    return NextResponse.json({ // Changed from NextRequest to NextResponse
         message: "User data processed successfully"
     });
 }
