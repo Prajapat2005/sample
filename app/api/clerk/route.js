@@ -21,18 +21,27 @@ export async function POST(req) {
 
     const userData = {
         _id: data.id,
-        name: `${data.first_name} ${data.last_name}`,
         email: data.email_addresses[0].email_address,
+        name: `${data.first_name} ${data.last_name}`,
         image: data.image_url,
     };
 
     await connectDB();
 
-    if (type === "user.created") {
-        await User.create(userData);
-    } else if (type === "user.updated") {
-        await User.findByIdAndUpdate(data.id, userData);
+    switch (type) {
+        case "user.created":
+            await User.create(userData);
+            break;
+        case "user.updated":
+            await User.findByIdAndUpdate(data.id, userData);
+            break;
+        case "user.deleted":
+            console.log("User deleted:", data.id);
+            break;
+        default:
+            console.log("Unhandled event type:", type);
     }
+
     else if (type === "user.deleted") {
         await User.findByIdAndDelete(data.id);
     }
